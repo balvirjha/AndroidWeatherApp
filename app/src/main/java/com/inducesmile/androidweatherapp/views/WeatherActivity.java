@@ -40,11 +40,11 @@ import com.inducesmile.androidweatherapp.database.DatabaseQuery;
 import com.inducesmile.androidweatherapp.entity.WeatherObject;
 import com.inducesmile.androidweatherapp.helpers.CustomSharedPreference;
 import com.inducesmile.androidweatherapp.helpers.Helper;
+import com.inducesmile.androidweatherapp.interfaces.IWeatherContract;
 import com.inducesmile.androidweatherapp.json.FiveDaysForecast;
 import com.inducesmile.androidweatherapp.json.FiveWeathers;
 import com.inducesmile.androidweatherapp.json.Forecast;
-import com.inducesmile.androidweatherapp.json.LocationMapObject;
-import com.inducesmile.androidweatherapp.restclients.SingleDayAPIClient;
+import com.inducesmile.androidweatherapp.modals.SingleDayWeatherResponse;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,7 +54,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class WeatherActivity extends AppCompatActivity implements LocationListener {
+public class WeatherActivity extends AppCompatActivity implements IWeatherContract.View, LocationListener {
 
     private static final String TAG = WeatherActivity.class.getSimpleName();
 
@@ -76,7 +76,7 @@ public class WeatherActivity extends AppCompatActivity implements LocationListen
 
     private RequestQueue queue;
 
-    private LocationMapObject locationMapObject;
+    // private LocationMapObject locationMapObject;
 
     private LocationManager locationManager;
 
@@ -93,6 +93,20 @@ public class WeatherActivity extends AppCompatActivity implements LocationListen
     private String apiUrl;
 
     private FiveDaysForecast fiveDaysForecast;
+
+    private IWeatherContract.Presenter mPresenter;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mPresenter.start();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mPresenter.stop();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,8 +142,8 @@ public class WeatherActivity extends AppCompatActivity implements LocationListen
                 if (locationManager != null) {
                     location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                     apiUrl = "http://api.openweathermap.org/data/2.5/weather?lat=" + location.getLatitude() + "&lon=" + location.getLongitude() + "&APPID=" + Helper.API_KEY + "&units=metric";
-                    new SingleDayAPIClient().getSingleDayWeatherResponse(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
-                    makeJsonObject(apiUrl);
+                    mPresenter.getSingledayWeatherresponse(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+                    //makeJsonObject(apiUrl);
                 }
             } else {
                 // make API call with city name
@@ -140,7 +154,7 @@ public class WeatherActivity extends AppCompatActivity implements LocationListen
                 if (!TextUtils.isEmpty(city[0])) {
                     System.out.println("Stored city " + city[0]);
                     String url = "http://api.openweathermap.org/data/2.5/weather?q=" + city[0] + "&APPID=" + Helper.API_KEY + "&units=metric";
-                    makeJsonObject(url);
+                    //makeJsonObject(url);
                 }
             }
         }
@@ -161,8 +175,45 @@ public class WeatherActivity extends AppCompatActivity implements LocationListen
         recyclerView.setHasFixedSize(true);
     }
 
+    public void setSingleWeatherData(SingleDayWeatherResponse singleWeatherData) {
+        if (null == singleWeatherData) {
+            Toast.makeText(getApplicationContext(), "Nothing was returned", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(getApplicationContext(), "Response Good", Toast.LENGTH_LONG).show();
 
-    private void makeJsonObject(final String apiUrl) {
+            String city = singleWeatherData.getName() + ", " + singleWeatherData.getSys().getCountry();
+            String sunrise = new SimpleDateFormat("HH:mm").format(new java.util.Date((long) new Long(singleWeatherData.getSys().getSunrise()) * 1000));
+            String sunset = new SimpleDateFormat("HH:mm").format(new java.util.Date((long) new Long(singleWeatherData.getSys().getSunset()) * 1000));
+            String todayDate = getTodayDateInStringFormat();
+            String tempVal = String.valueOf(Math.round(Math.floor(Double.parseDouble(String.valueOf(singleWeatherData.getMain().getTemp())))));
+            String weatherTemp = tempVal + " ";
+            String weatherDescription = Helper.capitalizeFirstLetter(singleWeatherData.getWeather().get(0).getDescription());
+            String windSpeed = String.valueOf(singleWeatherData.getWind().getSpeed());
+            String humidityValue = String.valueOf(singleWeatherData.getMain().getHumidity());
+
+            //save location in database
+            if (apiUrl.contains("lat")) {
+                query.insertNewLocation(singleWeatherData.getName());
+            }
+            // populate View data
+            cityCountry.setText(Html.fromHtml(city));
+            currentDate.setText(Html.fromHtml(todayDate));
+            circleTitle.setTitleText(Html.fromHtml(weatherTemp).toString());
+            circleTitle.setSubtitleText(Html.fromHtml(weatherDescription).toString());
+            windResult.setText(Html.fromHtml(windSpeed) + " km/h");
+            humidityResult.setText(Html.fromHtml(humidityValue) + " %");
+
+            if (findViewById(R.id.sunriseResult) != null) {
+                ((TextView) findViewById((R.id.sunriseResult))).setText(sunrise);
+                ((TextView) findViewById((R.id.sunsetResult))).setText(sunset);
+            }
+
+            fiveDaysApiJsonObjectCall(singleWeatherData.getName());
+        }
+    }
+
+
+   /* private void makeJsonObject(final String apiUrl) {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, apiUrl, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -212,7 +263,7 @@ public class WeatherActivity extends AppCompatActivity implements LocationListen
             }
         });
         queue.add(stringRequest);
-    }
+    }*/
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -225,10 +276,7 @@ public class WeatherActivity extends AppCompatActivity implements LocationListen
                     if (locationManager != null) {
                         location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                         apiUrl = "http://api.openweathermap.org/data/2.5/weather?lat=" + location.getLatitude() + "&lon=" + location.getLongitude() + "&APPID=" + Helper.API_KEY + "&units=metric";
-                        makeJsonObject(apiUrl);
-                    } else {
-                        apiUrl = "http://api.openweathermap.org/data/2.5/weather?lat=51.5074&lon=0.1278&APPID=" + Helper.API_KEY + "&units=metric";
-                        makeJsonObject(apiUrl);
+                        // makeJsonObject(apiUrl);
                     }
                 }
             } else {
@@ -366,5 +414,10 @@ public class WeatherActivity extends AppCompatActivity implements LocationListen
             e.printStackTrace();
         }
         return days;
+    }
+
+    @Override
+    public void setPresenter(IWeatherContract.Presenter presenter) {
+        mPresenter = presenter;
     }
 }
