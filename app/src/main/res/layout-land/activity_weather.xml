@@ -2,11 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackground"
     android:orientation="horizontal"
-    tools:context="com.inducesmile.androidweatherapp.views.WeatherActivity">
+    tools:context="com.inducesmile.temptoday.views.WeatherActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -82,8 +83,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
             android:layout_marginTop="@dimen/_5sdp"
+            android:layout_weight="1"
             android:orientation="horizontal"
             android:weightSum="4">
 
@@ -117,8 +118,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_weight="1"
                 android:layout_marginTop="@dimen/_5sdp"
+                android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
 
