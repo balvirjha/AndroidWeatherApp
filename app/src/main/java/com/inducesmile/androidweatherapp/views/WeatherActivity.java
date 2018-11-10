@@ -40,11 +40,13 @@ import com.inducesmile.androidweatherapp.database.DatabaseQuery;
 import com.inducesmile.androidweatherapp.entity.WeatherObject;
 import com.inducesmile.androidweatherapp.helpers.CustomSharedPreference;
 import com.inducesmile.androidweatherapp.helpers.Helper;
+import com.inducesmile.androidweatherapp.interactor.WeatherInteractor;
 import com.inducesmile.androidweatherapp.interfaces.IWeatherContract;
 import com.inducesmile.androidweatherapp.json.FiveDaysForecast;
 import com.inducesmile.androidweatherapp.json.FiveWeathers;
 import com.inducesmile.androidweatherapp.json.Forecast;
 import com.inducesmile.androidweatherapp.modals.SingleDayWeatherResponse;
+import com.inducesmile.androidweatherapp.presenter.WeatherPresenter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -119,6 +121,9 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
         if (actionBar != null) {
             actionBar.hide();
         }
+
+        WeatherPresenter presenter = new WeatherPresenter(this);
+        new WeatherInteractor(presenter);
 
         queue = Volley.newRequestQueue(this);
         query = new DatabaseQuery(WeatherActivity.this);
