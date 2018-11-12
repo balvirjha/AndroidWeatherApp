@@ -3,14 +3,21 @@ package com.inducesmile.temptoday.interactor;
 import android.util.Log;
 
 import com.inducesmile.temptoday.events.FiveDayWeatherEvent;
+import com.inducesmile.temptoday.events.SigleDayDataInsertEvent;
 import com.inducesmile.temptoday.events.SingleDayWeatherEvent;
+import com.inducesmile.temptoday.helpers.Helper;
 import com.inducesmile.temptoday.interfaces.IWeatherContract;
+import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDatWeatherModal;
+import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDayWeatherResponse;
+import com.inducesmile.temptoday.repositories.SIngleDayDataRepositories;
 import com.inducesmile.temptoday.restclients.FiveDayAPIClient;
 import com.inducesmile.temptoday.restclients.SingleDayAPIClient;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.text.SimpleDateFormat;
 
 /**
  * Created by BalvirJha on 10-11-2018.
@@ -63,6 +70,23 @@ public class WeatherInteractor implements IWeatherContract.Interactor {
     @Override
     public void onErrorFiveWeatherData(FiveDayWeatherEvent.OnLoadingError onLoadingError) {
         Log.d(TAG, "Error occured while fetchin five day data: " + onLoadingError.getErrorMessage());
+    }
+
+    @Override
+    public void insertSingleDayData(SingleDatWeatherModal datWeatherModal) {
+        new SIngleDayDataRepositories().insert(datWeatherModal);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Override
+    public void onSuccessSingleDayData(SigleDayDataInsertEvent.OnLoaded onLoaded) {
+        mPresenter.onSuccessSingleDayData(onLoaded.getResponse());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Override
+    public void onErrorSingleDayData(SigleDayDataInsertEvent.OnLoadingError onLoaded) {
+        mPresenter.onErrorSingleDayData(onLoaded.getErrorMessage());
     }
 
     @Override

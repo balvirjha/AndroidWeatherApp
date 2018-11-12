@@ -2,10 +2,11 @@ package com.inducesmile.temptoday.restclients;
 
 import android.util.Log;
 
+import com.inducesmile.temptoday.common.OpenWeatherClient;
 import com.inducesmile.temptoday.common.TempTodayApplication;
 import com.inducesmile.temptoday.events.SingleDayWeatherEvent;
 import com.inducesmile.temptoday.helpers.Helper;
-import com.inducesmile.temptoday.modals.SingleDayWeatherResponse;
+import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDayWeatherResponse;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -24,9 +25,7 @@ public class SingleDayAPIClient implements Callback<SingleDayWeatherResponse> {
     private static final String TAG = SingleDayAPIClient.class.getSimpleName();
 
     public void getSingleDayWeatherResponse(String lat, String lon) {
-        OpenWeatherClient.getOpenWeaterAPI(new Cache(
-                new File(TempTodayApplication.getInstance().getCacheDir(), "responses"),
-                10 * 1024 * 1024)).getSingleDayWeatherResponse(lat, lon, Helper.getApiKey(), "metric").enqueue(this);
+        OpenWeatherClient.getOpenWeaterAPI().getSingleDayWeatherResponse(lat, lon, Helper.getApiKey(), "metric").enqueue(this);
         Log.d(TAG, "getSingleDayWeatherResponse api called");
     }
 

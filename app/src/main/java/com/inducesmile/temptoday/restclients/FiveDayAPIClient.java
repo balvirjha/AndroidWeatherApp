@@ -2,6 +2,7 @@ package com.inducesmile.temptoday.restclients;
 
 import android.util.Log;
 
+import com.inducesmile.temptoday.common.OpenWeatherClient;
 import com.inducesmile.temptoday.common.TempTodayApplication;
 import com.inducesmile.temptoday.events.FiveDayWeatherEvent;
 import com.inducesmile.temptoday.helpers.Helper;
@@ -24,9 +25,7 @@ public class FiveDayAPIClient implements Callback<Forecast> {
     private static final String TAG = FiveDayAPIClient.class.getSimpleName();
 
     public void getFiveDayWeatherResponse(String cityName) {
-        OpenWeatherClient.getOpenWeaterAPI(new Cache(
-                new File(TempTodayApplication.getInstance().getCacheDir(), "responses"),
-                10 * 1024 * 1024)).getFiveDayWeatherResponse(cityName, Helper.getApiKey(), "metric").enqueue(this);
+        OpenWeatherClient.getOpenWeaterAPI().getFiveDayWeatherResponse(cityName, Helper.getApiKey(), "metric").enqueue(this);
         Log.d(TAG, "getSingleDayWeatherResponse api called");
     }
 

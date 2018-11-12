@@ -1,9 +1,12 @@
-package com.inducesmile.temptoday.restclients;
+package com.inducesmile.temptoday.common;
+
 
 import com.inducesmile.temptoday.helpers.Helper;
-import com.inducesmile.temptoday.modals.SingleDayWeatherResponse;
+import com.inducesmile.temptoday.modals.cityweathermodal.CityWeatherResult;
 import com.inducesmile.temptoday.modals.json.Forecast;
+import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDayWeatherResponse;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
@@ -27,4 +30,10 @@ public interface OpenWeatherAPI {
     Call<Forecast> getFiveDayWeatherResponse(@Query("q") String cityName,
                                              @Query("APPID") String appid,
                                              @Query("units") String units);
+
+
+    @Headers("Accept: application/json")
+    @GET(Helper.CITYNAME_WEATHERDATA_ENDPOINT)
+    Observable<CityWeatherResult> getWeatherDataByCityName(@Query("q") String cityName,
+                                                           @Query("APPID") String appid);
 }

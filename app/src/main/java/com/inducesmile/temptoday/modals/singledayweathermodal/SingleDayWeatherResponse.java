@@ -1,4 +1,4 @@
-package com.inducesmile.temptoday.modals;
+package com.inducesmile.temptoday.modals.singledayweathermodal;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -15,7 +15,6 @@ import java.util.List;
 public class SingleDayWeatherResponse implements Parcelable {
 
     public final static Parcelable.Creator<SingleDayWeatherResponse> CREATOR = new Creator<SingleDayWeatherResponse>() {
-
 
         @SuppressWarnings({
                 "unchecked"

@@ -5,14 +5,8 @@
 
     <item>
         <bitmap
-            android:gravity="center"
+            android:gravity="fill"
             android:src="@drawable/appicon" />
-
-    </item>
-    <item>
-        <bitmap
-            android:gravity="bottom"
-            android:src="@drawable/appback" />
 
     </item>
 

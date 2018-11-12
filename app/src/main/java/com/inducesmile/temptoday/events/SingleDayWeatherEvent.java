@@ -1,6 +1,6 @@
 package com.inducesmile.temptoday.events;
 
-import com.inducesmile.temptoday.modals.SingleDayWeatherResponse;
+import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDayWeatherResponse;
 
 /**
  * Created by BalvirJha on 10-11-2018.

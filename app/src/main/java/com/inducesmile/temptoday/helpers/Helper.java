@@ -18,13 +18,26 @@ public class Helper {
 
     public static final String STORED_DATA_SECOND = "data_second";
 
+    public static final String DATABASE_NAME = "weather_database";
+
     public static final String IS_DATA_PRESENT = "isData";
 
     public static final String LOCATION_PREFS = "location_prefs";
+
     public static final String SINGLEDAY_WEATHERDATA_ENDPOINT = "weather";
+
     public static final String FIVEDAY_WEATHERDATA_ENDPOINT = "forecast";
+
+    public static final String CITYNAME_WEATHERDATA_ENDPOINT = "forecast";
+
+    public static final String SUCCESS_STATUS = "success";
+
+    public static final String FAILURE_STATUS = "failed";
+
     public static final int REQUEST_LOCATION = 200;
+
     private static final String API_KEY = "a363a2b2ee3e14ddb617d983afe213f0";
+
     private static final String BASE_API = "http://api.openweathermap.org/data/2.5/";
 
     public static String getApiKey() {

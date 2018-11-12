@@ -8,6 +8,7 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -25,15 +27,14 @@ import com.github.pavlospt.CircleView;
 import com.inducesmile.temptoday.R;
 import com.inducesmile.temptoday.adapters.RecyclerViewAdapter;
 import com.inducesmile.temptoday.common.Utils;
-import com.inducesmile.temptoday.database.DatabaseQuery;
 import com.inducesmile.temptoday.entity.WeatherObject;
-import com.inducesmile.temptoday.helpers.CustomSharedPreference;
 import com.inducesmile.temptoday.helpers.Helper;
 import com.inducesmile.temptoday.interactor.WeatherInteractor;
 import com.inducesmile.temptoday.interfaces.IWeatherContract;
-import com.inducesmile.temptoday.modals.SingleDayWeatherResponse;
 import com.inducesmile.temptoday.modals.json.FiveWeathers;
 import com.inducesmile.temptoday.modals.json.Forecast;
+import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDatWeatherModal;
+import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDayWeatherResponse;
 import com.inducesmile.temptoday.presenter.WeatherPresenter;
 
 import java.text.SimpleDateFormat;
@@ -44,7 +45,7 @@ import java.util.List;
  * Created by BalvirJha on 10-11-2018.
  */
 
-public class WeatherActivity extends AppCompatActivity implements IWeatherContract.View {
+public class WeatherActivity extends AppCompatActivity implements IWeatherContract.View, View.OnClickListener {
 
     private static final String TAG = WeatherActivity.class.getSimpleName();
 
@@ -66,11 +67,9 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
 
     private TextView humidityResult;
 
-    private CustomSharedPreference sharedPreference;
+    FloatingActionButton fab;
 
     private String isLocationSaved;
-
-    private DatabaseQuery query;
 
     private IWeatherContract.Presenter mPresenter;
 
@@ -94,16 +93,21 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
 
         initView();
         mPresenter.initiateLocationFetch();
+        if (mPresenter.lcheckLocationPermission()) {
+            mPresenter.requestLocationPermission();
+        } else {
+            mPresenter.requestLocationUpdates();
+        }
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mPresenter.lcheckLocationPermission()) {
-            mPresenter.requestLocationPermission();
-        } else {
-            if (isLocationSaved.equals("")) {
+        if (mPresenter != null) {
+            if (mPresenter.lcheckLocationPermission()) {
+                mPresenter.requestLocationPermission();
+            } else {
                 mPresenter.requestLocationUpdates();
             }
         }
@@ -111,15 +115,13 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
 
     @Override
     public void callSingleDayWeatherAPI(Location location) {
-        mPresenter.getSingledayWeatherresponse(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+        if (mPresenter != null) {
+            mPresenter.getSingledayWeatherresponse(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+        }
     }
 
     private void initView() {
         new WeatherInteractor(new WeatherPresenter(this));
-
-        query = new DatabaseQuery(WeatherActivity.this);
-        sharedPreference = new CustomSharedPreference(WeatherActivity.this);
-        isLocationSaved = sharedPreference.getLocationInPreference();
 
         rootLayout = findViewById(R.id.rootLayout);
         cityCountry = findViewById(R.id.city_country);
@@ -128,6 +130,8 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
         circleTitle = findViewById(R.id.weather_result);
         windResult = findViewById(R.id.wind_result);
         humidityResult = findViewById(R.id.humidity_result);
+        fab = findViewById(R.id.fab);
+        fab.setOnClickListener(this);
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(WeatherActivity.this, 5);
 
@@ -136,6 +140,7 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
         recyclerView.setHasFixedSize(true);
     }
 
+    @Override
     public void setSingleWeatherData(SingleDayWeatherResponse singleWeatherData) {
         if (null == singleWeatherData) {
             Toast.makeText(getApplicationContext(), "Nothing was returned", Toast.LENGTH_LONG).show();
@@ -152,7 +157,16 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
             String windSpeed = String.valueOf(singleWeatherData.getWind().getSpeed());
             String humidityValue = String.valueOf(singleWeatherData.getMain().getHumidity());
 
-            query.insertNewLocation(singleWeatherData.getName());
+            SingleDayWeatherResponse singleDayWeatherResponse = singleWeatherData;
+            SingleDatWeatherModal singleDatWeatherModal = new SingleDatWeatherModal(singleDayWeatherResponse.getName(),
+                    singleDayWeatherResponse.getWind().getSpeed(),
+                    new Double(singleDayWeatherResponse.getMain().getHumidity()),
+                    new SimpleDateFormat("HH:mm").format(new java.util.Date(new Long(singleDayWeatherResponse.getSys().getSunrise()) * 1000)),
+                    new SimpleDateFormat("HH:mm").format(new java.util.Date(new Long(singleDayWeatherResponse.getSys().getSunset()) * 1000)),
+                    new Double(Math.round(Math.floor(Double.parseDouble(String.valueOf(singleDayWeatherResponse.getMain().getTemp()))))),
+                    Helper.capitalizeFirstLetter(singleDayWeatherResponse.getWeather().get(0).getDescription()));
+            mPresenter.insertSingleDayData(singleDatWeatherModal);
+
             cityCountry.setText(Html.fromHtml(city));
             currentDate.setText(Html.fromHtml(todayDate));
             circleTitle.setTitleText(Html.fromHtml(weatherTemp).toString());
@@ -165,16 +179,20 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
                 ((TextView) findViewById((R.id.sunsetResult))).setText(sunset);
             }
             rootLayout.invalidate();
-            mPresenter.getFiveDayWeatherresponse(singleWeatherData.getName());
+
+            if (mPresenter != null) {
+                mPresenter.getFiveDayWeatherresponse(singleWeatherData.getName());
+            }
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == Helper.REQUEST_LOCATION) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-
-                mPresenter.requestLocationUpdates();
+            if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                if (mPresenter != null) {
+                    mPresenter.requestLocationUpdates();
+                }
             } else {
                 Toast.makeText(WeatherActivity.this, getString(R.string.permission_notice), Toast.LENGTH_LONG).show();
             }
@@ -244,14 +262,17 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
                         daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
                         everyday[4] = 1;
                     }
-                    if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Sat)) && everyday[5] < 1) {
+                   /* if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Sat)) && everyday[5] < 1) {
                         daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
                         everyday[5] = 1;
-                    }
-                    if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Sun)) && everyday[6] < 1) {
+                    }*/
+                    /*if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Sun)) && everyday[6] < 1) {
                         daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
                         everyday[6] = 1;
-                    }
+                    }*/
+
+                }
+                if (daysOfTheWeek != null && daysOfTheWeek.size() > 0) {
                     recyclerViewAdapter = new RecyclerViewAdapter(WeatherActivity.this, daysOfTheWeek);
                     recyclerView.setAdapter(recyclerViewAdapter);
                 }
@@ -267,12 +288,22 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
     @Override
     protected void onStop() {
         super.onStop();
-        mPresenter.stop();
+        if (mPresenter != null) {
+            mPresenter.stop();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mPresenter = null;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.fab) {
+            Intent intent = new Intent(WeatherActivity.this, CityListActivity.class);
+            startActivity(intent);
+        }
     }
 }

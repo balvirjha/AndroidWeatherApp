@@ -8,11 +8,13 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 
 import com.inducesmile.temptoday.helpers.Helper;
 import com.inducesmile.temptoday.interfaces.IWeatherContract;
-import com.inducesmile.temptoday.modals.SingleDayWeatherResponse;
 import com.inducesmile.temptoday.modals.json.Forecast;
+import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDatWeatherModal;
+import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDayWeatherResponse;
 import com.inducesmile.temptoday.views.WeatherActivity;
 
 /**
@@ -21,6 +23,7 @@ import com.inducesmile.temptoday.views.WeatherActivity;
 
 public class WeatherPresenter implements IWeatherContract.Presenter, LocationListener {
 
+    private static final String TAG = WeatherPresenter.class.getSimpleName();
     private IWeatherContract.View mWeatherView;
     private IWeatherContract.Interactor mWeatherInteractor;
 
@@ -83,6 +86,7 @@ public class WeatherPresenter implements IWeatherContract.Presenter, LocationLis
     @Override
     public void onLocationChanged(Location location) {
         this.location = location;
+        callSingleDayWeatherDataAPI();
     }
 
     @Override
@@ -122,6 +126,20 @@ public class WeatherPresenter implements IWeatherContract.Presenter, LocationLis
         }
     }
 
+    @Override
+    public void insertSingleDayData(SingleDatWeatherModal datWeatherModal) {
+        mWeatherInteractor.insertSingleDayData(datWeatherModal);
+    }
+
+    @Override
+    public void onSuccessSingleDayData(String status) {
+        Log.d(TAG, "inserting single data data successfull");
+    }
+
+    @Override
+    public void onErrorSingleDayData(String status) {
+        Log.d(TAG, "error while inserting single data data");
+    }
 
     @Override
     public void stop() {

@@ -60,22 +60,12 @@
             app:cv_titleSubtitleSpace="40"
             app:cv_titleText="@string/current_temperature" />
 
-        <RelativeLayout
-            android:layout_width="@dimen/_200sdp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/_8sdp">
-
-
-        </RelativeLayout>
-
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:background="@color/colorBottomBackground"
         android:orientation="vertical"
         android:visibility="visible"
         android:weightSum="3">
@@ -199,6 +189,14 @@
             android:layout_weight="2"
             android:orientation="vertical"
             android:scrollbars="none" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"
+            android:src="@drawable/add" />
     </LinearLayout>
 
 </LinearLayout>

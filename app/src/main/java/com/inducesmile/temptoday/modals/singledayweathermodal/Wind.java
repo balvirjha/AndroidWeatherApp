@@ -1,4 +1,4 @@
-package com.inducesmile.temptoday.modals;
+package com.inducesmile.temptoday.modals.singledayweathermodal;
 
 import android.os.Parcel;
 import android.os.Parcelable;

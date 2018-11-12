@@ -24,7 +24,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
         this.dailyWeather = dailyWeather;
         this.context = context;
     }
-
+    
     @Override
     public RecyclerViewHolders onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerViewHolders viewHolder = null;

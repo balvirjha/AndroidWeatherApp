@@ -3,8 +3,10 @@ package com.inducesmile.temptoday.interfaces;
 import android.location.Location;
 
 import com.inducesmile.temptoday.events.FiveDayWeatherEvent;
+import com.inducesmile.temptoday.events.SigleDayDataInsertEvent;
 import com.inducesmile.temptoday.events.SingleDayWeatherEvent;
-import com.inducesmile.temptoday.modals.SingleDayWeatherResponse;
+import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDatWeatherModal;
+import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDayWeatherResponse;
 import com.inducesmile.temptoday.modals.json.Forecast;
 
 /**
@@ -39,6 +41,12 @@ public interface IWeatherContract {
         void requestLocationPermission();
 
         void requestLocationUpdates();
+
+        void insertSingleDayData(SingleDatWeatherModal datWeatherModal);
+
+        void onSuccessSingleDayData(String status);
+
+        void onErrorSingleDayData(String status);
     }
 
     interface Interactor extends IBaseInteractor {
@@ -53,5 +61,11 @@ public interface IWeatherContract {
         void onSuccessFiveWeatherData(FiveDayWeatherEvent.OnLoaded onLoaded);
 
         void onErrorFiveWeatherData(FiveDayWeatherEvent.OnLoadingError onLoadingError);
+
+        void insertSingleDayData(SingleDatWeatherModal datWeatherModal);
+
+        void onSuccessSingleDayData(SigleDayDataInsertEvent.OnLoaded onLoaded);
+
+        void onErrorSingleDayData(SigleDayDataInsertEvent.OnLoadingError onLoadingError);
     }
 }
