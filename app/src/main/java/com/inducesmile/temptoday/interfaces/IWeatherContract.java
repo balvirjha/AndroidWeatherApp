@@ -4,10 +4,11 @@ import android.location.Location;
 
 import com.inducesmile.temptoday.events.FiveDayWeatherEvent;
 import com.inducesmile.temptoday.events.SigleDayDataInsertEvent;
+import com.inducesmile.temptoday.events.SingleDayDataFetchEvent;
 import com.inducesmile.temptoday.events.SingleDayWeatherEvent;
+import com.inducesmile.temptoday.modals.json.Forecast;
 import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDatWeatherModal;
 import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDayWeatherResponse;
-import com.inducesmile.temptoday.modals.json.Forecast;
 
 /**
  * Created by BalvirJha on 10-11-2018.
@@ -16,13 +17,16 @@ import com.inducesmile.temptoday.modals.json.Forecast;
 public interface IWeatherContract {
 
     interface View extends IBaseView<Presenter> {
-        void setSingleWeatherData(SingleDayWeatherResponse singleWeatherData);
+        void saveSingleWeatherData(SingleDayWeatherResponse singleWeatherData);
 
         void setFiveDayWeatherData(Forecast fiveDayWeatherData);
 
         void callSingleDayWeatherAPI(Location location);
 
         void showGPSDisabledAlertToUser();
+
+        void displaySingleWeatherData(SingleDatWeatherModal singleDatWeatherModal);
+
     }
 
     interface Presenter extends IBasePresenter<Interactor> {
@@ -47,6 +51,12 @@ public interface IWeatherContract {
         void onSuccessSingleDayData(String status);
 
         void onErrorSingleDayData(String status);
+
+        void fetchAllSingleDayData();
+
+        void onSucessOfFetchingSingleDayData(SingleDatWeatherModal singleDatWeatherModal);
+
+        void onFailureOfFetchingSingleDayData(String status);
     }
 
     interface Interactor extends IBaseInteractor {
@@ -67,5 +77,11 @@ public interface IWeatherContract {
         void onSuccessSingleDayData(SigleDayDataInsertEvent.OnLoaded onLoaded);
 
         void onErrorSingleDayData(SigleDayDataInsertEvent.OnLoadingError onLoadingError);
+
+        void fetchAllSingleDayData();
+
+        void onSucessOfFetchingSingleDayData(SingleDayDataFetchEvent.OnLoaded onLoaded);
+
+        void onFailureOfFetchingSingleDayData(SingleDayDataFetchEvent.OnLoadingError onLoadingError);
     }
 }

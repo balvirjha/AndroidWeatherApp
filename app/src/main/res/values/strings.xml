@@ -21,5 +21,10 @@
     <string name="Sat">Sat</string>
     <string name="Sun">Sun</string>
     <string name="cityName">City Name</string>
+    <string name="sharedPrefName">tempSharedref</string>
+    <string name="lattitude">lattitude</string>
+    <string name="cityname">cityname</string>
+    <string name="longitude">longitude</string>
+    <string name="isFirstRun">isFirstRun</string>
     <string name="temparature">%1$s <sup><small>°</small></sup><sub><big>C</big></sub></string>
 </resources>

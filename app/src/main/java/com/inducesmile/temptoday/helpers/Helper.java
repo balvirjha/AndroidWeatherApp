@@ -40,6 +40,8 @@ public class Helper {
 
     private static final String BASE_API = "http://api.openweathermap.org/data/2.5/";
 
+    public static final String IMAGE_MANIPULATION_WORK_NAME = "image_manipulation_work";
+
     public static String getApiKey() {
         return API_KEY;
     }

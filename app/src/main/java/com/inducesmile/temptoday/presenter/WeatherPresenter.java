@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import com.inducesmile.temptoday.common.SharedPrefUtil;
+import com.inducesmile.temptoday.common.TempTodayApplication;
 import com.inducesmile.temptoday.helpers.Helper;
 import com.inducesmile.temptoday.interfaces.IWeatherContract;
 import com.inducesmile.temptoday.modals.json.Forecast;
@@ -58,7 +60,7 @@ public class WeatherPresenter implements IWeatherContract.Presenter, LocationLis
 
     @Override
     public void setSingleWeatherData(SingleDayWeatherResponse singleWeatherData) {
-        mWeatherView.setSingleWeatherData(singleWeatherData);
+        mWeatherView.saveSingleWeatherData(singleWeatherData);
     }
 
     @Override
@@ -86,7 +88,11 @@ public class WeatherPresenter implements IWeatherContract.Presenter, LocationLis
     @Override
     public void onLocationChanged(Location location) {
         this.location = location;
-        callSingleDayWeatherDataAPI();
+        SharedPrefUtil.getInstance(TempTodayApplication.getInstance()).saveCurrentLocation(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+        if (!SharedPrefUtil.getInstance(TempTodayApplication.getInstance()).isFirstRun()) {
+            callSingleDayWeatherDataAPI();
+        }
+
     }
 
     @Override
@@ -113,7 +119,10 @@ public class WeatherPresenter implements IWeatherContract.Presenter, LocationLis
 
             if (locationManager != null) {
                 location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                callSingleDayWeatherDataAPI();
+                if (!SharedPrefUtil.getInstance(TempTodayApplication.getInstance()).isFirstRun()) {
+                    callSingleDayWeatherDataAPI();
+                    //SharedPrefUtil.getInstance(TempTodayApplication.getInstance()).saveFirstRun(false);
+                }
             }
         } catch (SecurityException e) {
             e.printStackTrace();
@@ -138,7 +147,22 @@ public class WeatherPresenter implements IWeatherContract.Presenter, LocationLis
 
     @Override
     public void onErrorSingleDayData(String status) {
-        Log.d(TAG, "error while inserting single data data");
+        Log.d(TAG, "error while inserting single data");
+    }
+
+    @Override
+    public void fetchAllSingleDayData() {
+        mWeatherInteractor.fetchAllSingleDayData();
+    }
+
+    @Override
+    public void onSucessOfFetchingSingleDayData(SingleDatWeatherModal singleDatWeatherModal) {
+        mWeatherView.displaySingleWeatherData(singleDatWeatherModal);
+    }
+
+    @Override
+    public void onFailureOfFetchingSingleDayData(String status) {
+        Log.d(TAG, "error while getting single data");
     }
 
     @Override

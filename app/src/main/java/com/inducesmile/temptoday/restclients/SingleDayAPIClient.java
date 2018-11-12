@@ -3,6 +3,7 @@ package com.inducesmile.temptoday.restclients;
 import android.util.Log;
 
 import com.inducesmile.temptoday.common.OpenWeatherClient;
+import com.inducesmile.temptoday.common.SharedPrefUtil;
 import com.inducesmile.temptoday.common.TempTodayApplication;
 import com.inducesmile.temptoday.events.SingleDayWeatherEvent;
 import com.inducesmile.temptoday.helpers.Helper;
@@ -33,6 +34,7 @@ public class SingleDayAPIClient implements Callback<SingleDayWeatherResponse> {
     public void onResponse(Call<SingleDayWeatherResponse> call, Response<SingleDayWeatherResponse> response) {
         if (response.isSuccessful()) {
             Log.d(TAG, "Response Code: " + response.code());
+            SharedPrefUtil.getInstance(TempTodayApplication.getInstance()).saveFirstRun(true);
             EventBus.getDefault().post(new SingleDayWeatherEvent.OnLoaded(response.body()));
         }
 

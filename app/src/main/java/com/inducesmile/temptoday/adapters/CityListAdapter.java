@@ -37,12 +37,12 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListViewHolders> {
     public void onBindViewHolder(CityListViewHolders holder, int position) {
         CityListDataModal mCityWeatherResult = data.get(position);
         if (mCityWeatherResult != null && mCityWeatherResult.getCity() != null) {
-            holder.windTextView3.setText(String.valueOf(mCityWeatherResult.getWind()));
+            holder.windTextView3.setText(String.valueOf(mCityWeatherResult.getWind().intValue()));
 
-            double mTemp = Math.round(Math.floor(Double.parseDouble(String.valueOf(mCityWeatherResult.getTemp()))));
+            double mTemp = Math.round(Math.floor(Double.parseDouble(String.valueOf(mCityWeatherResult.getTemp().intValue()))));
             holder.envTextView.setText(String.valueOf(Math.round(mTemp)) + "°");
 
-            holder.humidityTextView3.setText(String.valueOf(mCityWeatherResult.getHumidity()));
+            holder.humidityTextView3.setText(String.valueOf(mCityWeatherResult.getHumidity().intValue()));
             holder.citynameTextView.setText(mCityWeatherResult.getCity());
         }
     }

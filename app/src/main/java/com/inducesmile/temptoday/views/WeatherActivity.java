@@ -37,9 +37,10 @@ import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDatWeatherMo
 import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDayWeatherResponse;
 import com.inducesmile.temptoday.presenter.WeatherPresenter;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.work.PeriodicWorkRequest;
 
 /**
  * Created by BalvirJha on 10-11-2018.
@@ -72,6 +73,8 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
     private String isLocationSaved;
 
     private IWeatherContract.Presenter mPresenter;
+
+    PeriodicWorkRequest periodicWorkRequest;
 
     @Override
     protected void onStart() {
@@ -110,6 +113,11 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
             } else {
                 mPresenter.requestLocationUpdates();
             }
+            mPresenter.fetchAllSingleDayData();
+            /*if (!SharedPrefUtil.getInstance(TempTodayApplication.getInstance()).isFirstRun()) {
+
+                SharedPrefUtil.getInstance(TempTodayApplication.getInstance()).saveFirstRun(true);
+            }*/
         }
     }
 
@@ -141,31 +149,33 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
     }
 
     @Override
-    public void setSingleWeatherData(SingleDayWeatherResponse singleWeatherData) {
+    public void saveSingleWeatherData(SingleDayWeatherResponse singleWeatherData) {
         if (null == singleWeatherData) {
             Toast.makeText(getApplicationContext(), "Nothing was returned", Toast.LENGTH_LONG).show();
             Log.d(TAG, "Single Day Weather API empty Response returned");
         } else {
             Log.d(TAG, "Single Day Weather API Response Good");
-            String city = singleWeatherData.getName() + ", " + singleWeatherData.getSys().getCountry();
-            String sunrise = new SimpleDateFormat("HH:mm").format(new java.util.Date(new Long(singleWeatherData.getSys().getSunrise()) * 1000));
-            String sunset = new SimpleDateFormat("HH:mm").format(new java.util.Date(new Long(singleWeatherData.getSys().getSunset()) * 1000));
-            String todayDate = Utils.getTodayDateInStringFormat();
-            String tempVal = String.valueOf(Math.round(Math.floor(Double.parseDouble(String.valueOf(singleWeatherData.getMain().getTemp())))));
-            String weatherTemp = tempVal + " ";
-            String weatherDescription = Helper.capitalizeFirstLetter(singleWeatherData.getWeather().get(0).getDescription());
-            String windSpeed = String.valueOf(singleWeatherData.getWind().getSpeed());
-            String humidityValue = String.valueOf(singleWeatherData.getMain().getHumidity());
 
-            SingleDayWeatherResponse singleDayWeatherResponse = singleWeatherData;
-            SingleDatWeatherModal singleDatWeatherModal = new SingleDatWeatherModal(singleDayWeatherResponse.getName(),
-                    singleDayWeatherResponse.getWind().getSpeed(),
-                    new Double(singleDayWeatherResponse.getMain().getHumidity()),
-                    new SimpleDateFormat("HH:mm").format(new java.util.Date(new Long(singleDayWeatherResponse.getSys().getSunrise()) * 1000)),
-                    new SimpleDateFormat("HH:mm").format(new java.util.Date(new Long(singleDayWeatherResponse.getSys().getSunset()) * 1000)),
-                    new Double(Math.round(Math.floor(Double.parseDouble(String.valueOf(singleDayWeatherResponse.getMain().getTemp()))))),
-                    Helper.capitalizeFirstLetter(singleDayWeatherResponse.getWeather().get(0).getDescription()));
-            mPresenter.insertSingleDayData(singleDatWeatherModal);
+        }
+    }
+
+    @Override
+    public void displaySingleWeatherData(SingleDatWeatherModal singleDatWeatherModal) {
+        if (null == singleDatWeatherModal) {
+            Toast.makeText(getApplicationContext(), "Nothing was returned", Toast.LENGTH_LONG).show();
+            Log.d(TAG, "Single Day Weather API empty Response returned");
+        } else {
+            Log.d(TAG, "Single Day Weather API Response Good");
+            String city = singleDatWeatherModal.getCityName();
+            String sunrise = singleDatWeatherModal.getSunrise();
+            String sunset = singleDatWeatherModal.getSunset();
+            String todayDate = Utils.getTodayDateInStringFormat();
+            String tempVal = String.valueOf(singleDatWeatherModal.getTemp().intValue());
+            String weatherTemp = tempVal;
+            String weatherDescription = Helper.capitalizeFirstLetter(singleDatWeatherModal.getWeatherDescription());
+            String windSpeed = String.valueOf(singleDatWeatherModal.getWindSpeed().intValue());
+            String humidityValue = String.valueOf(singleDatWeatherModal.getHumidity().intValue());
+
 
             cityCountry.setText(Html.fromHtml(city));
             currentDate.setText(Html.fromHtml(todayDate));
@@ -181,10 +191,11 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
             rootLayout.invalidate();
 
             if (mPresenter != null) {
-                mPresenter.getFiveDayWeatherresponse(singleWeatherData.getName());
+                mPresenter.getFiveDayWeatherresponse(singleDatWeatherModal.getCityName());
             }
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

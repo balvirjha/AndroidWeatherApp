@@ -100,7 +100,7 @@ public class SIngleDayDataRepositories {
                 });
     }
 
-    public void fetchAllCityListData() {
+    public void fetchAllSingleDayData() {
         Completable.fromAction(new Action() {
             @Override
             public void run() {
