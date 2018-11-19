@@ -2,6 +2,9 @@ package com.inducesmile.temptoday.interfaces;
 
 import android.location.Location;
 
+import com.inducesmile.temptoday.entity.WeatherObject;
+import com.inducesmile.temptoday.events.FiveDayDataFetchingEvent;
+import com.inducesmile.temptoday.events.FiveDayDataInsertionEvent;
 import com.inducesmile.temptoday.events.FiveDayWeatherEvent;
 import com.inducesmile.temptoday.events.SigleDayDataInsertEvent;
 import com.inducesmile.temptoday.events.SingleDayDataFetchEvent;
@@ -9,6 +12,8 @@ import com.inducesmile.temptoday.events.SingleDayWeatherEvent;
 import com.inducesmile.temptoday.modals.json.Forecast;
 import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDatWeatherModal;
 import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDayWeatherResponse;
+
+import java.util.List;
 
 /**
  * Created by BalvirJha on 10-11-2018.
@@ -26,6 +31,8 @@ public interface IWeatherContract {
         void showGPSDisabledAlertToUser();
 
         void displaySingleWeatherData(SingleDatWeatherModal singleDatWeatherModal);
+
+        void fetchingAllFiveDayDataSuccess(List<WeatherObject> weatherObjectList);
 
     }
 
@@ -57,6 +64,13 @@ public interface IWeatherContract {
         void onSucessOfFetchingSingleDayData(SingleDatWeatherModal singleDatWeatherModal);
 
         void onFailureOfFetchingSingleDayData(String status);
+
+        void fetchAllFiveDayData();
+
+        void fetchingAllFiveDayDataSuccess(List<WeatherObject> weatherObjectList);
+
+        void fetchingAllFiveDayDataError(String status);
+
     }
 
     interface Interactor extends IBaseInteractor {
@@ -83,5 +97,15 @@ public interface IWeatherContract {
         void onSucessOfFetchingSingleDayData(SingleDayDataFetchEvent.OnLoaded onLoaded);
 
         void onFailureOfFetchingSingleDayData(SingleDayDataFetchEvent.OnLoadingError onLoadingError);
+
+        void insertingDBFiveDayDataSuccess(FiveDayDataInsertionEvent.OnInsertingDataSuccess onInsertingDataSuccess);
+
+        void insertingDBFiveDayDataError(FiveDayDataInsertionEvent.OnInsertingDataError onInsertingDataError);
+
+        void fetchAllFiveDayData();
+
+        void fetchingAllFiveDayDataSuccess(FiveDayDataFetchingEvent.OnFetchingDataSuccess onFetchingDataSuccess);
+
+        void fetchingAllFiveDayDataError(FiveDayDataFetchingEvent.OnFetchingDataError onFetchingDataError);
     }
 }

@@ -2,6 +2,7 @@ package com.inducesmile.temptoday.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +25,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
         this.dailyWeather = dailyWeather;
         this.context = context;
     }
-    
+
     @Override
     public RecyclerViewHolders onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerViewHolders viewHolder = null;
@@ -35,15 +36,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
 
     @Override
     public void onBindViewHolder(RecyclerViewHolders holder, int position) {
-
-        holder.dayOfWeek.setText(dailyWeather.get(position).getDayOfWeek());
+        if (!TextUtils.isEmpty(dailyWeather.get(position).getDayOfWeek())) {
+            holder.dayOfWeek.setText(dailyWeather.get(position).getDayOfWeek());
+        }
         holder.weatherIcon.setImageResource(dailyWeather.get(position).getWeatherIcon());
-
-        double mTemp = Double.parseDouble(dailyWeather.get(position).getWeatherResult());
-        holder.weatherResult.setText(String.valueOf(Math.round(mTemp)) + "°");
-
-        holder.weatherResultSmall.setText(dailyWeather.get(position).getWeatherResultSmall());
-        holder.weatherResultSmall.setVisibility(View.GONE);
+        if (!TextUtils.isEmpty(dailyWeather.get(position).getWeatherResult())) {
+            double mTemp = Double.parseDouble(dailyWeather.get(position).getWeatherResult());
+            holder.weatherResult.setText(String.valueOf(Math.round(mTemp)) + "°");
+        }
+        if (!TextUtils.isEmpty(dailyWeather.get(position).getWeatherResultSmall())) {
+            holder.weatherResultSmall.setText(dailyWeather.get(position).getWeatherResultSmall());
+            holder.weatherResultSmall.setVisibility(View.GONE);
+        }
     }
 
     @Override

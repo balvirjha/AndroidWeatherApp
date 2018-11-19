@@ -38,9 +38,8 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListViewHolders> {
         CityListDataModal mCityWeatherResult = data.get(position);
         if (mCityWeatherResult != null && mCityWeatherResult.getCity() != null) {
             holder.windTextView3.setText(String.valueOf(mCityWeatherResult.getWind().intValue()));
-
-            double mTemp = Math.round(Math.floor(Double.parseDouble(String.valueOf(mCityWeatherResult.getTemp().intValue()))));
-            holder.envTextView.setText(String.valueOf(Math.round(mTemp)) + "°");
+            double mTemp = new Double(Math.round(Math.floor(Double.parseDouble(String.valueOf(mCityWeatherResult.getTemp())))));
+            holder.envTextView.setText(String.valueOf(mTemp) + "°C");
 
             holder.humidityTextView3.setText(String.valueOf(mCityWeatherResult.getHumidity().intValue()));
             holder.citynameTextView.setText(mCityWeatherResult.getCity());

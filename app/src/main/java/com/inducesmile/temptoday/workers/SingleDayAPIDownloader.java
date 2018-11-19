@@ -19,7 +19,7 @@ import androidx.work.WorkerParameters;
 public class SingleDayAPIDownloader extends Worker {
 
     private Context context;
-    private static final String TAG = "SingleDayAPIDownloader";
+    private static final String TAG = SingleDayAPIDownloader.class.getSimpleName();
 
     public SingleDayAPIDownloader(@NonNull Context appContext, @NonNull WorkerParameters workerParams) {
         super(appContext, workerParams);

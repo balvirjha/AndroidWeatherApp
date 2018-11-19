@@ -15,12 +15,6 @@ public class FiveDayWeatherEvent extends BaseEvent {
         }
     }
 
-    public static class OnLoadingStart extends OnStart<String> {
-        public OnLoadingStart(String message) {
-            super(message);
-        }
-    }
-
     public static class OnLoadingError extends OnFailed {
         public OnLoadingError(String errorMessage, int code) {
             super(errorMessage, code);

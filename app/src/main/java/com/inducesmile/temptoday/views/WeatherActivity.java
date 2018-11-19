@@ -31,7 +31,6 @@ import com.inducesmile.temptoday.entity.WeatherObject;
 import com.inducesmile.temptoday.helpers.Helper;
 import com.inducesmile.temptoday.interactor.WeatherInteractor;
 import com.inducesmile.temptoday.interfaces.IWeatherContract;
-import com.inducesmile.temptoday.modals.json.FiveWeathers;
 import com.inducesmile.temptoday.modals.json.Forecast;
 import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDatWeatherModal;
 import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDayWeatherResponse;
@@ -39,8 +38,6 @@ import com.inducesmile.temptoday.presenter.WeatherPresenter;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.work.PeriodicWorkRequest;
 
 /**
  * Created by BalvirJha on 10-11-2018.
@@ -70,11 +67,7 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
 
     FloatingActionButton fab;
 
-    private String isLocationSaved;
-
     private IWeatherContract.Presenter mPresenter;
-
-    PeriodicWorkRequest periodicWorkRequest;
 
     @Override
     protected void onStart() {
@@ -192,6 +185,7 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
 
             if (mPresenter != null) {
                 mPresenter.getFiveDayWeatherresponse(singleDatWeatherModal.getCityName());
+                mPresenter.fetchAllFiveDayData();
             }
         }
     }
@@ -236,8 +230,68 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
     }
 
     @Override
+    public void fetchingAllFiveDayDataSuccess(List<WeatherObject> weatherObjectList) {
+        displayAllFiveDayData(weatherObjectList);
+    }
+
+    private void displayAllFiveDayData(List<WeatherObject> weatherObjectList) {
+        if (null == weatherObjectList) {
+            Toast.makeText(getApplicationContext(), "Nothing was returned in five day API", Toast.LENGTH_LONG).show();
+            Log.d(TAG, "Five Day Weather API empty Response returned");
+        } else {
+            if (null != weatherObjectList) {
+                List<WeatherObject> weatherObjectListNew = new ArrayList<>();
+                int[] everyday = new int[]{0, 0, 0, 0, 0, 0, 0};
+                for (int i = 0; i < weatherObjectList.size(); i++) {
+                    String time = weatherObjectList.get(i).getDayOfWeek();
+                    String temp =
+                            String.valueOf(new Double(Math.round(Math.floor(Double.valueOf(weatherObjectList.get(i).getWeatherResult())))));
+                    String tempMin = String.valueOf(new Double(Math.round(Math.floor(Double.valueOf(weatherObjectList.get(i).getWeatherResultSmall())))));
+                    //String shortDay = Utils.convertTimeToDay(time);
+                    //weatherObjectList.get(i).setWeatherResult(shortDay);
+
+                    if (time.equals(getResources().getString(R.string.Mon)) && everyday[0] < 1) {
+                        weatherObjectListNew.add(new WeatherObject(time, R.drawable.small_weather_icon, temp, tempMin));
+                        everyday[0] = 1;
+                    }
+                    if (time.equals(getResources().getString(R.string.Tue)) && everyday[1] < 1) {
+                        weatherObjectListNew.add(new WeatherObject(time, R.drawable.small_weather_icon, temp, tempMin));
+                        everyday[1] = 1;
+                    }
+                    if (time.equals(getResources().getString(R.string.Wed)) && everyday[2] < 1) {
+                        weatherObjectListNew.add(new WeatherObject(time, R.drawable.small_weather_icon, temp, tempMin));
+                        everyday[2] = 1;
+                    }
+                    if (time.equals(getResources().getString(R.string.Thu)) && everyday[3] < 1) {
+                        weatherObjectListNew.add(new WeatherObject(time, R.drawable.small_weather_icon, temp, tempMin));
+                        everyday[3] = 1;
+                    }
+                    if (time.equals(getResources().getString(R.string.Fri)) && everyday[4] < 1) {
+                        weatherObjectListNew.add(new WeatherObject(time, R.drawable.small_weather_icon, temp, tempMin));
+                        everyday[4] = 1;
+                    }
+                    if (time.equals(getResources().getString(R.string.Sat)) && everyday[5] < 1) {
+                        weatherObjectListNew.add(new WeatherObject(time, R.drawable.small_weather_icon, temp, tempMin));
+                        everyday[5] = 1;
+                    }
+                    if (time.equals(getResources().getString(R.string.Sun)) && everyday[6] < 1) {
+                        weatherObjectListNew.add(new WeatherObject(time, R.drawable.small_weather_icon, temp, tempMin));
+                        everyday[6] = 1;
+                    }
+
+                }
+                if (weatherObjectList != null && weatherObjectList.size() > 0) {
+                    recyclerViewAdapter = new RecyclerViewAdapter(WeatherActivity.this, weatherObjectListNew);
+                    recyclerView.setAdapter(recyclerViewAdapter);
+                }
+            }
+        }
+    }
+
+
+    @Override
     public void setFiveDayWeatherData(Forecast fiveDayWeatherData) {
-        final List<WeatherObject> daysOfTheWeek = new ArrayList<>();
+        /*final List<WeatherObject> daysOfTheWeek = new ArrayList<>();
         if (null == fiveDayWeatherData) {
             Toast.makeText(getApplicationContext(), "Nothing was returned in five day API", Toast.LENGTH_LONG).show();
             Log.d(TAG, "Five Day Weather API empty Response returned");
@@ -245,13 +299,13 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
             Log.d(TAG, "Five Day Weather API Response Good");
             int[] everyday = new int[]{0, 0, 0, 0, 0, 0, 0};
 
-            List<FiveWeathers> weatherInfo = fiveDayWeatherData.getList();
-            if (null != weatherInfo) {
-                for (int i = 0; i < weatherInfo.size(); i++) {
-                    String time = weatherInfo.get(i).getDt_txt();
+            List<FiveWeathers> weatherObjectList = fiveDayWeatherData.getList();
+            if (null != weatherObjectList) {
+                for (int i = 0; i < weatherObjectList.size(); i++) {
+                    String time = weatherObjectList.get(i).getDt_txt();
                     String shortDay = Utils.convertTimeToDay(time);
-                    String temp = weatherInfo.get(i).getMain().getTemp();
-                    String tempMin = weatherInfo.get(i).getMain().getTemp_min();
+                    String temp = weatherObjectList.get(i).getMain().getTemp();
+                    String tempMin = weatherObjectList.get(i).getMain().getTemp_min();
 
                     if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Mon)) && everyday[0] < 1) {
                         daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
@@ -273,14 +327,14 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
                         daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
                         everyday[4] = 1;
                     }
-                   /* if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Sat)) && everyday[5] < 1) {
+                   *//* if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Sat)) && everyday[5] < 1) {
                         daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
                         everyday[5] = 1;
-                    }*/
-                    /*if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Sun)) && everyday[6] < 1) {
+                    }*//*
+         *//*if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Sun)) && everyday[6] < 1) {
                         daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
                         everyday[6] = 1;
-                    }*/
+                    }*//*
 
                 }
                 if (daysOfTheWeek != null && daysOfTheWeek.size() > 0) {
@@ -288,7 +342,7 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
                     recyclerView.setAdapter(recyclerViewAdapter);
                 }
             }
-        }
+        }*/
     }
 
     @Override

@@ -12,12 +12,15 @@ import android.util.Log;
 
 import com.inducesmile.temptoday.common.SharedPrefUtil;
 import com.inducesmile.temptoday.common.TempTodayApplication;
+import com.inducesmile.temptoday.entity.WeatherObject;
 import com.inducesmile.temptoday.helpers.Helper;
 import com.inducesmile.temptoday.interfaces.IWeatherContract;
 import com.inducesmile.temptoday.modals.json.Forecast;
 import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDatWeatherModal;
 import com.inducesmile.temptoday.modals.singledayweathermodal.SingleDayWeatherResponse;
 import com.inducesmile.temptoday.views.WeatherActivity;
+
+import java.util.List;
 
 /**
  * Created by BalvirJha on 10-11-2018.
@@ -163,6 +166,21 @@ public class WeatherPresenter implements IWeatherContract.Presenter, LocationLis
     @Override
     public void onFailureOfFetchingSingleDayData(String status) {
         Log.d(TAG, "error while getting single data");
+    }
+
+    @Override
+    public void fetchAllFiveDayData() {
+        mWeatherInteractor.fetchAllFiveDayData();
+    }
+
+    @Override
+    public void fetchingAllFiveDayDataSuccess(List<WeatherObject> weatherObjectList) {
+        mWeatherView.fetchingAllFiveDayDataSuccess(weatherObjectList);
+    }
+
+    @Override
+    public void fetchingAllFiveDayDataError(String status) {
+        Log.d(TAG, "error while fetching all five day data: " + status);
     }
 
     @Override
