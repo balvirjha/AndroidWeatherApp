@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -13,11 +12,13 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.inducesmile.temptoday.R;
 import com.inducesmile.temptoday.adapters.CityListAdapter;
+import com.inducesmile.temptoday.common.BaseActivity;
 import com.inducesmile.temptoday.helpers.Helper;
 import com.inducesmile.temptoday.interactor.CityListInteractor;
 import com.inducesmile.temptoday.interfaces.ICityListContract;
@@ -28,7 +29,7 @@ import com.inducesmile.temptoday.presenter.CityListPresenter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CityListActivity extends AppCompatActivity implements View.OnClickListener, TextWatcher, ICityListContract.View {
+public class CityListActivity extends BaseActivity implements View.OnClickListener, TextWatcher, ICityListContract.View {
 
     private static final String TAG = CityListActivity.class.getSimpleName();
     private EditText cityEditText;
@@ -170,6 +171,12 @@ public class CityListActivity extends AppCompatActivity implements View.OnClickL
         if (mPresenter != null) {
             mPresenter.stop();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransitionExit();
     }
 
     @Override

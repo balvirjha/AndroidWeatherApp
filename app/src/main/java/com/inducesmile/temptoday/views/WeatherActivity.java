@@ -1,5 +1,6 @@
 package com.inducesmile.temptoday.views;
 
+import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,7 +12,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -26,6 +26,8 @@ import android.widget.Toast;
 import com.github.pavlospt.CircleView;
 import com.inducesmile.temptoday.R;
 import com.inducesmile.temptoday.adapters.RecyclerViewAdapter;
+import com.inducesmile.temptoday.common.BaseActivity;
+import com.inducesmile.temptoday.common.SlideAnimationUtil;
 import com.inducesmile.temptoday.common.Utils;
 import com.inducesmile.temptoday.entity.WeatherObject;
 import com.inducesmile.temptoday.helpers.Helper;
@@ -43,7 +45,7 @@ import java.util.List;
  * Created by BalvirJha on 10-11-2018.
  */
 
-public class WeatherActivity extends AppCompatActivity implements IWeatherContract.View, View.OnClickListener {
+public class WeatherActivity extends BaseActivity implements IWeatherContract.View, View.OnClickListener {
 
     private static final String TAG = WeatherActivity.class.getSimpleName();
 
@@ -69,6 +71,8 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
 
     private IWeatherContract.Presenter mPresenter;
 
+    int i = 1;
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -81,13 +85,14 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
-
+        //findViewById(R.id.rootLayout).startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
         }
 
         initView();
+
         mPresenter.initiateLocationFetch();
         if (mPresenter.lcheckLocationPermission()) {
             mPresenter.requestLocationPermission();
@@ -107,10 +112,6 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
                 mPresenter.requestLocationUpdates();
             }
             mPresenter.fetchAllSingleDayData();
-            /*if (!SharedPrefUtil.getInstance(TempTodayApplication.getInstance()).isFirstRun()) {
-
-                SharedPrefUtil.getInstance(TempTodayApplication.getInstance()).saveFirstRun(true);
-            }*/
         }
     }
 
@@ -133,12 +134,14 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
         humidityResult = findViewById(R.id.humidity_result);
         fab = findViewById(R.id.fab);
         fab.setOnClickListener(this);
+        SlideAnimationUtil.slideInFromLeft(this, fab);
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(WeatherActivity.this, 5);
 
         recyclerView = findViewById(R.id.weather_daily_list);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setHasFixedSize(true);
+
     }
 
     @Override
@@ -152,6 +155,22 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
         }
     }
 
+    public void animateTextView(int initialValue, int finalValue, final CircleView textview) {
+        ValueAnimator valueAnimator = ValueAnimator.ofInt(initialValue, finalValue);
+        valueAnimator.setDuration(finalValue * 100);
+
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+
+                textview.setTitleText(valueAnimator.getAnimatedValue().toString());
+
+            }
+        });
+        valueAnimator.start();
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     public void displaySingleWeatherData(SingleDatWeatherModal singleDatWeatherModal) {
         if (null == singleDatWeatherModal) {
@@ -172,7 +191,7 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
 
             cityCountry.setText(Html.fromHtml(city));
             currentDate.setText(Html.fromHtml(todayDate));
-            circleTitle.setTitleText(Html.fromHtml(weatherTemp).toString());
+            animateTextView(0, Integer.valueOf(weatherTemp), circleTitle);
             circleTitle.setSubtitleText(Html.fromHtml(weatherDescription).toString());
             windResult.setText(Html.fromHtml(windSpeed) + " " + getResources().getString(R.string.kmph));
             humidityResult.setText(Html.fromHtml(humidityValue) + " " + getResources().getString(R.string.percentSign));
@@ -283,6 +302,7 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
                 if (weatherObjectList != null && weatherObjectList.size() > 0) {
                     recyclerViewAdapter = new RecyclerViewAdapter(WeatherActivity.this, weatherObjectListNew);
                     recyclerView.setAdapter(recyclerViewAdapter);
+                    SlideAnimationUtil.slideInFromRight(this, recyclerView);
                 }
             }
         }
@@ -291,58 +311,6 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
 
     @Override
     public void setFiveDayWeatherData(Forecast fiveDayWeatherData) {
-        /*final List<WeatherObject> daysOfTheWeek = new ArrayList<>();
-        if (null == fiveDayWeatherData) {
-            Toast.makeText(getApplicationContext(), "Nothing was returned in five day API", Toast.LENGTH_LONG).show();
-            Log.d(TAG, "Five Day Weather API empty Response returned");
-        } else {
-            Log.d(TAG, "Five Day Weather API Response Good");
-            int[] everyday = new int[]{0, 0, 0, 0, 0, 0, 0};
-
-            List<FiveWeathers> weatherObjectList = fiveDayWeatherData.getList();
-            if (null != weatherObjectList) {
-                for (int i = 0; i < weatherObjectList.size(); i++) {
-                    String time = weatherObjectList.get(i).getDt_txt();
-                    String shortDay = Utils.convertTimeToDay(time);
-                    String temp = weatherObjectList.get(i).getMain().getTemp();
-                    String tempMin = weatherObjectList.get(i).getMain().getTemp_min();
-
-                    if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Mon)) && everyday[0] < 1) {
-                        daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
-                        everyday[0] = 1;
-                    }
-                    if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Tue)) && everyday[1] < 1) {
-                        daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
-                        everyday[1] = 1;
-                    }
-                    if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Wed)) && everyday[2] < 1) {
-                        daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
-                        everyday[2] = 1;
-                    }
-                    if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Thu)) && everyday[3] < 1) {
-                        daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
-                        everyday[3] = 1;
-                    }
-                    if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Fri)) && everyday[4] < 1) {
-                        daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
-                        everyday[4] = 1;
-                    }
-                   *//* if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Sat)) && everyday[5] < 1) {
-                        daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
-                        everyday[5] = 1;
-                    }*//*
-         *//*if (Utils.convertTimeToDay(time).equals(getResources().getString(R.string.Sun)) && everyday[6] < 1) {
-                        daysOfTheWeek.add(new WeatherObject(shortDay, R.drawable.small_weather_icon, temp, tempMin));
-                        everyday[6] = 1;
-                    }*//*
-
-                }
-                if (daysOfTheWeek != null && daysOfTheWeek.size() > 0) {
-                    recyclerViewAdapter = new RecyclerViewAdapter(WeatherActivity.this, daysOfTheWeek);
-                    recyclerView.setAdapter(recyclerViewAdapter);
-                }
-            }
-        }*/
     }
 
     @Override
@@ -356,6 +324,12 @@ public class WeatherActivity extends AppCompatActivity implements IWeatherContra
         if (mPresenter != null) {
             mPresenter.stop();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransitionExit();
     }
 
     @Override
