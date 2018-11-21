@@ -2,6 +2,8 @@ package com.inducesmile.temptoday.views;
 
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,6 +22,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -155,7 +158,7 @@ public class WeatherActivity extends BaseActivity implements IWeatherContract.Vi
         }
     }
 
-    public void animateTextView(int initialValue, int finalValue, final CircleView textview) {
+    private void animateTextView(int initialValue, int finalValue, final CircleView textview) {
         ValueAnimator valueAnimator = ValueAnimator.ofInt(initialValue, finalValue);
         valueAnimator.setDuration(finalValue * 100);
 
@@ -201,6 +204,21 @@ public class WeatherActivity extends BaseActivity implements IWeatherContract.Vi
                 ((TextView) findViewById((R.id.sunsetResult))).setText(sunset);
             }
             rootLayout.invalidate();
+
+            RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.widget_layout);
+            remoteViews.setTextViewText(R.id.textTemp, singleDatWeatherModal.getTemp().toString() + "°C");
+            remoteViews.setTextViewText(R.id.textSunrise, sunrise);
+            remoteViews.setTextViewText(R.id.subtitleTemp, Html.fromHtml(weatherDescription).toString());
+            remoteViews.setTextViewText(R.id.dateText, Html.fromHtml(todayDate));
+            remoteViews.setTextViewText(R.id.cityText, Html.fromHtml(city));
+            remoteViews.setTextViewText(R.id.textsunset, sunset);
+            remoteViews.setTextViewText(R.id.textTemp, Html.fromHtml(weatherTemp).toString() + "°C");
+            remoteViews.setTextViewText(R.id.textwind, Html.fromHtml(windSpeed) + " " + getResources().getString(R.string.kmph));
+            remoteViews.setTextViewText(R.id.texthumid, Html.fromHtml(humidityValue) + " " + getResources().getString(R.string.percentSign));
+
+            ComponentName theWidget = new ComponentName(this, TempTodayWidgetProvider.class);
+            AppWidgetManager manager = AppWidgetManager.getInstance(this);
+            manager.updateAppWidget(theWidget, remoteViews);
 
             if (mPresenter != null) {
                 mPresenter.getFiveDayWeatherresponse(singleDatWeatherModal.getCityName());

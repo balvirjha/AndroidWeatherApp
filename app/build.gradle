@@ -11,6 +11,7 @@ android {
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
+        testInstrumentationRunner = 'android.support.test.runner.AndroidJUnitRunner'
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
@@ -27,25 +28,28 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation 'junit:junit:4.12'
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:design:27.1.1'
-    implementation 'com.intuit.sdp:sdp-android:1.0.3'
-    implementation 'com.android.support:recyclerview-v7:27.1.1'
-    implementation 'com.github.pavlospt:circleview:1.3'
-    implementation 'com.google.code.gson:gson:2.6.1'
+    testImplementation "junit:junit:$junit_version"
+    implementation "com.android.support:appcompat-v7:$appcompat_version"
+    implementation "com.android.support:design:$appcompat_version"
+    implementation "com.intuit.sdp:sdp-android:$sdp_version"
+    implementation "com.android.support:recyclerview-v7:$appcompat_version"
+    implementation "com.github.pavlospt:circleview:$circleview_version"
     implementation group: 'joda-time', name: 'joda-time', version: '2.9.4'
-    implementation 'com.google.code.gson:gson:2.6.2'
-    implementation 'com.squareup.retrofit2:retrofit:2.0.2'
-    implementation 'com.squareup.retrofit2:converter-gson:2.0.2'
-    implementation 'org.greenrobot:eventbus:3.1.1'
-    implementation "io.reactivex.rxjava2:rxjava:2+"
-    implementation 'io.reactivex.rxjava2:rxandroid:2+'
-    implementation 'com.squareup.retrofit2:adapter-rxjava2:2+'
-    implementation "android.arch.persistence.room:runtime:1.1.1"
-    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
-    implementation "android.arch.work:work-runtime:1.0.0-alpha11"
+    implementation "com.google.code.gson:gson:$gson_version"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation "org.greenrobot:eventbus:$eventbus_version"
+    implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxjava_version"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$rxjava_version"
+    implementation "android.arch.persistence.room:runtime:$arch_component_version"
+    annotationProcessor "android.arch.persistence.room:compiler:$arch_component_version"
+    implementation "android.arch.work:work-runtime:$workmanager_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espresso_version", {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+    androidTestImplementation "com.android.support.test:rules:$testrule_version"
 }
 repositories {
     mavenCentral()

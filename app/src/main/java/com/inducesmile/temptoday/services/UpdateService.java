@@ -1,6 +1,7 @@
 package com.inducesmile.temptoday.services;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -30,6 +31,12 @@ public class UpdateService extends IntentService {
         super(TAG);
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        startForeground(1, new Notification());
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -41,40 +48,43 @@ public class UpdateService extends IntentService {
         WeatherDataBase db = TempTodayApplication.getDatabase();
         iSingleDdayDao = db.isIgleDdayDao();
         SingleDatWeatherModal singleDatWeatherModal = getCurrentDateTime();
-        Log.d(TAG, "Recieved city: " + singleDatWeatherModal.getCityName());
-        RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.widget_layout);
-        remoteViews.setTextViewText(R.id.textTemp, singleDatWeatherModal.getTemp().toString()+ "°C");
+        if (singleDatWeatherModal != null) {
+            Log.d(TAG, "Recieved city: " + singleDatWeatherModal.getCityName());
+            RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.widget_layout);
+            remoteViews.setTextViewText(R.id.textTemp, singleDatWeatherModal.getTemp().toString() + "°C");
 
 
-        if (null == singleDatWeatherModal) {
-            Log.d(TAG, "Single Day Weather Database empty Response returned");
-        } else {
-            Log.d(TAG, "Single Day Weather Database Response Good");
-            String city = singleDatWeatherModal.getCityName();
-            String sunrise = singleDatWeatherModal.getSunrise();
-            String sunset = singleDatWeatherModal.getSunset();
-            String todayDate = Utils.getTodayDateInStringFormat();
-            String tempVal = String.valueOf(singleDatWeatherModal.getTemp().intValue());
-            String weatherTemp = tempVal;
-            String weatherDescription = Helper.capitalizeFirstLetter(singleDatWeatherModal.getWeatherDescription());
-            String windSpeed = String.valueOf(singleDatWeatherModal.getWindSpeed().intValue());
-            String humidityValue = String.valueOf(singleDatWeatherModal.getHumidity().intValue());
+            if (null == singleDatWeatherModal) {
+                Log.d(TAG, "Single Day Weather Database empty Response returned");
+            } else {
+                Log.d(TAG, "Single Day Weather Database Response Good");
+                String city = singleDatWeatherModal.getCityName();
+                String sunrise = singleDatWeatherModal.getSunrise();
+                String sunset = singleDatWeatherModal.getSunset();
+                String todayDate = Utils.getTodayDateInStringFormat();
+                String tempVal = String.valueOf(singleDatWeatherModal.getTemp().intValue());
+                String weatherTemp = tempVal;
+                String weatherDescription = Helper.capitalizeFirstLetter(singleDatWeatherModal.getWeatherDescription());
+                String windSpeed = String.valueOf(singleDatWeatherModal.getWindSpeed().intValue());
+                String humidityValue = String.valueOf(singleDatWeatherModal.getHumidity().intValue());
 
 
-            remoteViews.setTextViewText(R.id.textSunrise, sunrise);
-            remoteViews.setTextViewText(R.id.subtitleTemp, Html.fromHtml(weatherDescription).toString());
-            remoteViews.setTextViewText(R.id.dateText, Html.fromHtml(todayDate));
-            remoteViews.setTextViewText(R.id.cityText, Html.fromHtml(city));
-            remoteViews.setTextViewText(R.id.textsunset, sunset);
-            remoteViews.setTextViewText(R.id.textTemp, Html.fromHtml(weatherTemp).toString() + "°C");
-            remoteViews.setTextViewText(R.id.textwind, Html.fromHtml(windSpeed) + " " + getResources().getString(R.string.kmph));
-            remoteViews.setTextViewText(R.id.texthumid, Html.fromHtml(humidityValue) + " " + getResources().getString(R.string.percentSign));
+                remoteViews.setTextViewText(R.id.textSunrise, sunrise);
+                remoteViews.setTextViewText(R.id.subtitleTemp, Html.fromHtml(weatherDescription).toString());
+                remoteViews.setTextViewText(R.id.dateText, Html.fromHtml(todayDate));
+                remoteViews.setTextViewText(R.id.cityText, Html.fromHtml(city));
+                remoteViews.setTextViewText(R.id.textsunset, sunset);
+                remoteViews.setTextViewText(R.id.textTemp, Html.fromHtml(weatherTemp).toString() + "°C");
+                remoteViews.setTextViewText(R.id.textwind, Html.fromHtml(windSpeed) + " " + getResources().getString(R.string.kmph));
+                remoteViews.setTextViewText(R.id.texthumid, Html.fromHtml(humidityValue) + " " + getResources().getString(R.string.percentSign));
 
+
+            }
+
+            ComponentName theWidget = new ComponentName(this, TempTodayWidgetProvider.class);
+            AppWidgetManager manager = AppWidgetManager.getInstance(this);
+            manager.updateAppWidget(theWidget, remoteViews);
         }
-
-        ComponentName theWidget = new ComponentName(this, TempTodayWidgetProvider.class);
-        AppWidgetManager manager = AppWidgetManager.getInstance(this);
-        manager.updateAppWidget(theWidget, remoteViews);
     }
 
     @Override

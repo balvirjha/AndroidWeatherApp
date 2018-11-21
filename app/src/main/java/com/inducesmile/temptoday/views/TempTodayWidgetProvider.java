@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
@@ -25,6 +26,17 @@ public class TempTodayWidgetProvider extends AppWidgetProvider {
         Log.d(TAG, "OnUpdate called in widget");
         Toast.makeText(context, "Updating the widget", Toast.LENGTH_SHORT).show();
         setRepeatingAlarm(context);
+    }
+
+    @Override
+    public void onEnabled(Context context) {
+        super.onEnabled(context);
+        Log.d(TAG, "onEnabled called in widget, starting service immidiately");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(new Intent(context, UpdateService.class));
+        } else {
+            context.startService(new Intent(context, UpdateService.class));
+        }
     }
 
     @Override
