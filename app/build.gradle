@@ -6,7 +6,7 @@ android {
     buildToolsVersion '28.0.3'
 
     defaultConfig {
-        applicationId "com.inducesmile.temptoday"
+        applicationId "com.balvir.temptoday"
         minSdkVersion 14
         targetSdkVersion 27
         versionCode 1

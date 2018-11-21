@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:id="@+id/rootLayout"
     android:background="@color/colorBackground"
-    tools:context=".views.CityListActivity">
+    tools:context="com.balvir.temptoday.views.CityListActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

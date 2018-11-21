@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context="com.inducesmile.temptoday.views.WeatherActivity">
+        tools:context="com.balvir.temptoday.views.WeatherActivity">
 
         <LinearLayout
             android:layout_width="match_parent"
